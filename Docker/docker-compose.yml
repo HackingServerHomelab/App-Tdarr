@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  tdarr:
+    image: haveagitgat/tdarr:latest
+    container_name: tdarr
+    hostname: tdarr
+    restart: unless-stopped
+    volumes:
+      - ../Data/media:/home/Tdarr/Media
+      - ../Data/temp:/temp
+      - ../Data/tdarr:/home/Tdarr/Documents/Tdarr
+      - ../Data/mongodb:/var/lib/mongodb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+    labels:
+      # Traefik Labels
+      - "traefik.enable=true"
+      # HTTPS Labels
+      - "traefik.http.routers.tdarr.rule=Host(`localhost`)" # Domain Name
+      - "traefik.http.routers.tdarr.entrypoints=web-secure"
+      - "traefik.http.routers.tdarr.middlewares=default-headers@file"
+      - "traefik.http.routers.tdarr.service=tdarr"
+      - "traefik.http.routers.tdarr.tls=true"
+      - "traefik.http.services.tdarr.loadbalancer.server.port=8265" # Proxied Port
